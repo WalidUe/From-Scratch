@@ -1,0 +1,331 @@
+#include <string>
+#include <iostream>
+
+using namespace std;
+
+int min(const int a,const int b)
+{
+
+	return (a >= b)? b:a;
+}
+
+int max(const int a, const int b)
+{
+
+	return (a >= b) ? a : b;
+}
+
+class Node {
+public:
+
+	int myData = 0;
+	Node* leftChild = NULL, *rightChild = NULL;
+
+	Node() { myData = 0; leftChild = NULL; rightChild = NULL; }
+	Node(int myData) { this->myData = myData; }
+	Node(int myData, Node* leftChild, Node* rightChild)
+	{
+		this->myData = myData;
+		this->leftChild = leftChild;
+		this->rightChild = rightChild;
+	}
+
+	void insert(int value);
+	bool contains(int value)const;
+
+	void printInOrder()const;
+	int minDepth()const;
+	int maxDepth()const;
+
+	bool isBST(Node* root, int min, int max)const;
+
+	bool isBST();
+	int count()const;
+	int height()const;
+	int countLeaves()const;
+	void remove(int value);
+	Node* remove(Node* p, int value);
+	Node* inorderPredecessor(Node* p);
+	Node* inorderSuccessor(Node* p);
+};
+
+bool Node::isBST(Node* root, int min, int max)const
+{
+
+	if (!root)
+		return true;
+
+	if (root->myData < min || root->myData >max)
+		return false;
+
+	//assuming no duplicates are contained in our tree
+	return isBST(root->leftChild, min, root->myData - 1)
+		&& isBST(root->rightChild, root->myData + 1, max);
+
+}
+
+bool Node::isBST()
+{
+
+	return isBST(this, INT_MIN, INT_MAX);
+}
+
+void Node::insert(int value)
+{
+	
+
+
+	if (value <= myData)
+	{
+		if (!leftChild)
+			leftChild = new Node(value);
+		else
+			leftChild->insert(value);
+	}
+	else
+	{
+		if (!rightChild)
+			rightChild = new Node(value);
+		else
+			rightChild->insert(value);
+	}
+	
+
+}
+
+bool Node::contains(int value)const
+{
+	if (value == myData)
+		return true;
+	else if (value < myData)
+	{
+		if (!leftChild)
+			return false;
+		else
+			return leftChild->contains(value);
+	}
+	else
+	{
+		if (!rightChild)
+			return false;
+		else
+			return rightChild->contains(value);
+
+	}
+
+}
+
+void Node::printInOrder()const
+{
+
+	if (leftChild)
+		leftChild->printInOrder();
+
+	cout << myData << endl;
+
+	if (rightChild)
+		rightChild->printInOrder();
+}
+
+int Node::minDepth() const
+{
+	// Corner case. Should never be hit unless the code is  
+	// called on root = NULL 
+	if (this == NULL)
+		return 0;
+
+	// Base case : Leaf Node. This accounts for height = 1. 
+	if (this->leftChild == NULL && this->rightChild == NULL)
+		return 1;
+
+	// If left subtree is NULL, recur for right subtree 
+	if (!this->leftChild)
+		return this->rightChild->minDepth() + 1;
+	
+
+	// If right subtree is NULL, recur for left subtree 
+	if (!this->rightChild)
+		return this->leftChild->minDepth() + 1;
+	
+	
+	return min(this->leftChild->minDepth(), this->rightChild->minDepth()) + 1;
+}
+
+int Node::maxDepth()const
+{
+	// Corner case. Should never be hit unless the code is  
+	// called on root = NULL 
+	if (this == NULL)
+		return 0;
+
+	// Base case : Leaf Node. This accounts for height = 1. 
+	if (this->leftChild == NULL && this->rightChild == NULL)
+		return 1;
+
+	// If left subtree is NULL, recur for right subtree 
+	if (!this->leftChild)
+		return this->rightChild->maxDepth() + 1;
+
+
+	// If right subtree is NULL, recur for left subtree 
+	if (!this->rightChild)
+		return this->leftChild->maxDepth() + 1;
+
+
+	return max(this->leftChild->maxDepth(), this->rightChild->maxDepth()) + 1;
+}
+
+int Node::count()const
+{
+
+	int leftChildSum, rightChildSum;
+
+	if (this)
+	{
+		leftChildSum = this->leftChild->count();
+		rightChildSum = this->rightChild->count();
+
+		return leftChildSum + rightChildSum + 1;
+	}
+	return 0;
+}
+
+
+int Node::height()const
+{
+	if (!this)
+		return 0;
+
+	int leftChildHeight, rightChildHeight;
+	
+	leftChildHeight = this->leftChild->height();
+	rightChildHeight = this->rightChild->height();
+
+	if (leftChildHeight > rightChildHeight)
+		return leftChildHeight + 1;
+	else
+		return rightChildHeight + 1;
+	
+
+
+}
+
+
+int Node::countLeaves()const
+{
+
+	if (!this)
+		return 0;
+
+	if(!this->leftChild && !this->rightChild)
+		return this->leftChild->countLeaves() + this->rightChild->countLeaves() + 1;
+
+	return this->leftChild->countLeaves() + this->rightChild->countLeaves();
+}
+
+
+Node* Node::inorderPredecessor(Node* p)//right most child of left subtree
+{
+
+	while (p && p->rightChild)
+		p = p->rightChild;
+
+	return p;
+
+}
+
+Node* Node::inorderSuccessor(Node* p)//left most child of right subtree
+{
+
+	while (p && p->leftChild)
+		p = p->leftChild;
+
+	return p;
+
+}
+
+
+void Node::remove(int value)
+{
+	remove(this, value);
+
+}
+
+
+Node* Node::remove(Node* p, int value)
+{
+
+	Node* q = NULL;
+
+
+	if (!p)
+		return NULL;
+
+	if (!p->leftChild && !p->rightChild)//leaf node
+	{
+		delete p;
+		p = NULL;
+		return NULL;
+	}
+
+
+
+	if (value < p->myData)
+		p->leftChild = remove(p->leftChild, value);
+	else if (value > p->myData)
+		p->rightChild = remove(p->rightChild, value);
+	else//value is found
+	{
+		if (p->leftChild->height() > p->rightChild->height())
+		{
+			q = inorderPredecessor(p->leftChild);//right most child of left subtree
+			p->myData = q->myData;
+			p->leftChild = remove(p->leftChild, q->myData);
+		}
+		else
+		{
+			q = inorderSuccessor(p->rightChild);//left most child of right subtree
+			p->myData = q->myData;
+			p->rightChild = remove(p->rightChild, q->myData);
+		}
+		}
+			
+	return p;
+}
+
+int main()
+{
+	Node* root = new Node(3);
+
+	
+	int arr[] = {6,9,4,2,1,8,7};
+
+	const int N = sizeof(arr) / sizeof(arr[0]);
+	cout << "size: " << N << endl;
+
+	for (int i = 0 ; i < N; i++)
+		root->insert(arr[i]);
+
+	cout << "Print InOrder: " << endl;
+	root->printInOrder();
+
+	root->remove(3);
+	cout << "Print InOrder: " << endl;
+	root->printInOrder();
+
+	/*
+
+	cout << "Min Depth: " << root->minDepth() << endl;
+	cout << "Max Depth: " << root->maxDepth() << endl;
+
+	cout << boolalpha << " is BST? " << root->isBST() << endl;
+	
+	cout << "Count: "<<root->count() << endl;
+	cout << "Height " << root->height() << endl;
+	cout << "Number of leaves " << root->countLeaves()<< endl;
+*/
+
+
+	system("pause");
+	return 0;
+}

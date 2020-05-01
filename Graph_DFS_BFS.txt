@@ -1,0 +1,126 @@
+#include <string>
+#include <iostream>
+#include <vector>
+#include <queue>
+
+
+using namespace std;
+
+class Node {
+public:
+
+	int myData = 0;//distinct data
+	Node* next = NULL;
+
+	vector<Node*> myConnections;
+
+	Node(int myData) { this->myData = myData; }
+
+	void addConnection(Node* node)
+	{
+	
+		myConnections.push_back(node);
+	
+	}
+
+	
+	
+};
+
+
+bool isVisited(Node* myNode, vector<Node*> visitedNodes)
+{
+
+	for (Node* node : visitedNodes)
+		if (myNode->myData == node->myData)
+			return true;
+
+	return false;
+
+}
+
+void breadhFirstSearch(Node* root)//O(E+V)
+{
+	if (!root)//no element present
+		return;
+
+		vector<Node*> visitedNodes;
+		queue<Node*> nodesToExplore;
+
+		cout << root->myData << endl;//print my data
+		visitedNodes.push_back(root);
+		nodesToExplore.push(root);
+
+		while (!nodesToExplore.empty())
+		{
+
+			Node* newNode = nodesToExplore.front();
+			nodesToExplore.pop();
+
+			for (Node* connectionNode : newNode->myConnections)
+			{
+				if (!isVisited(connectionNode, visitedNodes))
+				{
+					cout << connectionNode->myData << endl;
+					visitedNodes.push_back(connectionNode);
+					nodesToExplore.push(connectionNode);
+				}
+
+			}
+		}
+
+
+
+}
+
+void depthFirstSearch(Node* node)//O(V + E), since it's an undirected graph
+{
+
+	if (!node)//no element present
+		return;
+
+	static vector<Node*> visitedNodes;
+	
+	if (!isVisited(node, visitedNodes))
+	{
+		cout << node->myData << endl;
+		visitedNodes.push_back(node);
+	}
+
+	for (Node* toExploreNext : node->myConnections)
+		depthFirstSearch(toExploreNext);
+		
+	
+
+}
+
+
+
+int main()
+{
+	
+	Node* root = new Node(10);
+
+
+	Node* node1 = new Node(20);
+	Node* node2 = new Node(70);
+	Node* node3 = new Node(30);
+	Node* node4 = new Node(40);
+	Node* node5 = new Node(50);
+	Node* node6 = new Node(60);
+
+	node5->myConnections.push_back(node6);
+	node3->myConnections.push_back(node5);
+	node3->myConnections.push_back(node4);
+	node1->myConnections.push_back(node2);
+
+	root->myConnections.push_back(node1);
+	root->myConnections.push_back(node3);
+
+
+	//breadhFirstSearch(root);
+	depthFirstSearch(root);
+
+	system("pause");
+	return 0;
+}

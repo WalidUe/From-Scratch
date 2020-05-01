@@ -1,0 +1,361 @@
+#include <string>
+#include <iostream>
+#include<stack>
+#include<vector>
+using namespace std;
+
+class Node{
+public:
+
+	int myData =0;
+	Node* next = NULL;
+	Node() { myData = 0; next = NULL; }
+	Node(int myData) { this->myData=myData;   }
+	Node(int myData, Node* next)
+	{
+		this->myData = myData;
+		this->next = next;
+	}
+};
+
+class linkedList {
+
+public:
+
+	Node* head=NULL;
+	void append(int data);
+	void prepend(int data);
+	void deleteWithValue(int data);
+	int countNodes()const;
+	void display()const;
+	void createFromArray(int arr[], const int N);
+	void insertInSorted(int data);
+	void createSortedFromArray(int arr[], const int N);
+
+	void deleteHead();
+	bool isSortedASC() const;
+	void removeDuplicatesFromSorted();
+	void reverse();
+	void concatenate(linkedList secondList);
+	int findValueOfMiddle();
+	bool isLoop();
+	void printIntersectingElements(linkedList list2);
+};
+
+void linkedList::deleteHead()
+{
+	if (!head)//No elements found
+		return;
+
+		
+		Node* ptr = head;
+		head = head->next;
+		delete ptr;
+		return;
+	
+}
+void linkedList::append(int data)
+{
+	if (!head)
+	{
+		head = new Node(data);
+		return;
+	}
+	
+	Node* current = head;
+	while (current->next != NULL)//Traversing until the end
+	{
+		current = current->next;
+	}
+	current->next = new Node(data);//add new element
+}
+
+void linkedList::prepend(int data)
+{
+	Node* newHead = new Node(data);
+	newHead->next = head;
+	head = newHead;
+
+}
+
+void linkedList::deleteWithValue(int data)
+{
+	if (!head)//No elements found
+		return;
+
+	if (head->myData == data)//deleting head
+		this->deleteHead();
+	
+
+	Node* current = head;
+	while (current->next != NULL)//find element with data value to delete
+	{
+		if (current->next->myData == data)
+		{
+			Node* ptr = current->next;
+			current->next= current->next->next;
+			delete ptr;
+			return;
+		}
+
+		current = current->next;
+	}
+}
+
+int linkedList::countNodes()const
+{
+	int count = 0;
+	Node* current = head;
+
+	while (current != NULL)
+	{
+		count++;
+		current = current->next;
+	}
+	return count;
+
+}
+
+void linkedList::display()const 
+{
+
+	Node* current = head;
+
+	while (current != NULL)
+	{
+		cout << current->myData <<endl;
+		current = current->next;
+	}
+	
+
+}
+
+void linkedList::createFromArray(int arr[], const int N)
+{
+	for (unsigned int i = 0; i < N; i++)
+	{
+		this->append(arr[i]);
+
+	}
+
+}
+
+void linkedList::insertInSorted(int data)
+{
+
+	if (!head)//no element yet present
+	{
+		head = new Node(data);
+		return;
+	}
+
+	if (head->myData > data)//if element's data needs to be placed before the head
+	{
+		this->prepend(data);
+		return;
+	}
+	Node* p = head;
+	Node* q = NULL;
+
+	while (p && p->myData <= data)
+	{
+		q = p;
+		p = p->next;
+	}
+	q->next = new Node(data, p);
+
+
+
+}
+
+void linkedList::createSortedFromArray(int arr[], const int N)
+{
+	for (unsigned int i = 0; i < N; i++)
+	{
+		this->insertInSorted(arr[i]);
+
+	}
+
+}
+
+bool linkedList::isSortedASC()const
+{
+	if (head == NULL)
+		return true;
+
+
+	// false if a node is smaller than its next. 
+	for (Node* ptr = head; ptr->next != NULL; ptr = ptr->next)
+		if (ptr->myData > ptr->next->myData)
+			return false;
+
+	return true;
+}
+
+void linkedList::removeDuplicatesFromSorted()
+{
+
+	if (!head)//no elements
+		return;
+
+	Node* p =head;
+	Node* q =head->next;
+
+	while (q)
+	{
+		if (p->myData != q->myData)
+		{
+			p = q;
+			q = q->next;
+
+		}
+		else
+		{
+			p->next = q->next;
+			delete q;
+			q = p->next;
+		}
+			
+	}
+
+}
+
+void linkedList::reverse()
+{
+
+	Node *previousN, *currentN, *nextN;
+	previousN = NULL;
+	currentN = head;
+	while (currentN)
+	{
+		nextN = currentN->next;
+		currentN->next = previousN;
+
+		previousN = currentN;
+		currentN = nextN;
+	}
+	head = previousN;
+
+}
+
+void linkedList::concatenate(linkedList secondList)
+{
+
+	Node* ptr = head;
+
+	while (ptr->next)
+		ptr = ptr->next;
+	ptr->next = secondList.head;
+
+}
+
+bool linkedList::isLoop()
+{
+	Node* p, * q;
+	p = q = head;
+
+	do {
+		p = p->next;
+		q = q->next;
+
+		q = (q) ? q->next : NULL;
+	
+	} while (p&& q && p!=q);
+
+	return (p == q);
+}
+
+int linkedList::findValueOfMiddle()
+{
+	Node* q = NULL;
+	Node* p = q = head;
+
+
+	if (!head)//no element found
+		return -1;
+
+	while (q)
+	{
+		q = q->next;
+		if(q)
+			q = q->next;
+		if (q)
+			p = p->next;
+	}
+	return p->myData;
+
+}
+
+
+void linkedList::printIntersectingElements(linkedList list2)
+{
+	vector<int> commonElements;
+
+	stack<Node* > list1Stack;
+	stack<Node* > list2Stack;
+
+	Node* ptr1 = head;
+	Node* ptr2 = list2.head;
+
+
+	while (ptr1)
+	{
+		list1Stack.push(ptr1);
+		ptr1 = ptr1->next;
+	}
+		
+	while (ptr2)
+	{
+		list2Stack.push(ptr2);
+		ptr2 = ptr2->next;
+	}
+
+
+	do {
+	
+		ptr1 = list1Stack.top();
+		list1Stack.pop();
+		ptr2 = list2Stack.top();
+		list2Stack.pop();
+
+		if (ptr1 == ptr2)
+			commonElements.push_back(ptr1->myData);
+		else
+			break;
+
+	} while (ptr1&& ptr2);
+	
+	cout << "Common Elements are: " << endl;
+	for (auto element : commonElements)
+		cout << element << endl;
+
+}
+
+int main()
+{
+	linkedList myList;
+
+	int arr[] = { 60 ,100,30,10,20};
+	const int N = sizeof(arr) / sizeof(arr[0]);
+	
+
+	myList.createSortedFromArray(arr, N);
+
+	cout << "count: " << myList.countNodes() << endl;
+	myList.display();
+	//////////
+
+	linkedList myList2;
+	int arr2[] = { 40,25,15 };
+	myList2.createSortedFromArray(arr2, 3);
+	myList2.display();
+
+
+	myList2.head->next->next->next = myList.head->next->next->next;
+
+	myList.printIntersectingElements(myList2);
+
+	
+
+	return 0;
+}
